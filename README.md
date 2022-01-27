@@ -1,6 +1,13 @@
-# Vue 3 + Vite
+# Hoop Timer
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Time your games with this big display simple web app.
+
+## Features
+* Installable, works offline.
+* 2 minute warning and 10 seconds countdown.
+## Todo
+* Customize time and save on device.
+* Setup Screen Wake Lock API.
 
 ## Recommended IDE Setup
 
