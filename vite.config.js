@@ -13,6 +13,9 @@ export default defineConfig({
         short_name: 'Hoop Timer',
         description: 'Installable big timer web app with 2 minute warning and 10 seconds countdown.',
         theme_color: '#000000',
+        scope: ".",
+        display: "standalone",
+        orientation: "any",
         icons: [
           {
             src: 'pwa-192x192.png',

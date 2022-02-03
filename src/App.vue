@@ -1,14 +1,17 @@
 <script setup>
-import { useIntervalFn } from "@vueuse/core";
-import { ref, computed } from "vue";
+import reloadPrompt from "./components/ReloadPrompt.vue";
+import { useIntervalFn, useWakeLock } from "@vueuse/core";
+import { ref, computed, reactive } from "vue";
+import { useStorage } from "@vueuse/core";
+const wakeLock = reactive(useWakeLock());
 import bBeep from "browser-beep";
-const DEFAULT_TIME = 600;
+const preventSleep = useStorage("timer-store", true);
+const DEFAULT_TIME = useStorage("default-time", 600);
 const beep = bBeep({ frequency: 1000 });
 const beep2 = bBeep({ frequency: 2000, interval: 15 });
 const beep3 = bBeep({ frequency: 2000, interval: 500 });
-const timeLeft = ref(DEFAULT_TIME);
 const endGame = ref(false);
-
+const timeLeft = ref(DEFAULT_TIME.value)
 const { pause, resume, isActive } = useIntervalFn(
   () => {
     timeLeft.value--;
@@ -20,6 +23,7 @@ const { pause, resume, isActive } = useIntervalFn(
     if (timeLeft.value === 0) {
       pause();
       beep2(100);
+      wakeLock.release();
     }
   },
   1000,
@@ -39,12 +43,17 @@ const onClockClicked = () => {
     pause();
   } else {
     if (timeLeft.value === 0) {
-      endGame.value = false;
-      timeLeft.value = DEFAULT_TIME;
+      reset();
     } else {
       resume();
+      if (preventSleep.value) wakeLock.request();
     }
   }
+};
+const reset = () => {
+  wakeLock.release();
+  endGame.value = false;
+  timeLeft.value = DEFAULT_TIME.value;
 };
 </script>
 
@@ -64,13 +73,14 @@ const onClockClicked = () => {
     class="reset_btn"
     viewBox="0 0 24 24"
     v-if="!isActive && timeLeft !== DEFAULT_TIME"
-    @click="timeLeft = DEFAULT_TIME"
+    @click="reset"
   >
     <path
       fill="#e9e9e9"
       d="M2 12C2 16.97 6.03 21 11 21C13.39 21 15.68 20.06 17.4 18.4L15.9 16.9C14.63 18.25 12.86 19 11 19C4.76 19 1.64 11.46 6.05 7.05C10.46 2.64 18 5.77 18 12H15L19 16H19.1L23 12H20C20 7.03 15.97 3 11 3C6.03 3 2 7.03 2 12Z"
     />
   </svg>
+  <reloadPrompt />
 </template>
 
 <style>
@@ -114,7 +124,7 @@ h1 {
   height: 24px;
   position: absolute;
   right: 0;
-  top:0;
+  top: 0;
 }
 .reset_btn {
   margin: 16px;
@@ -122,6 +132,6 @@ h1 {
   height: 24px;
   position: absolute;
   right: 0;
-  bottom:0
+  bottom: 0;
 }
 </style>
